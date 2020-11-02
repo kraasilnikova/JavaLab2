@@ -13,20 +13,56 @@ public class MainFrame extends JFrame
     // Текстовые поля для считывания значений переменных
     private JTextField textFieldX;
     private JTextField textFieldY;
+    private JTextField textFieldZ;
 
     private JTextField textFieldResult;
+    private JTextField textMemoryField;
+
+    // Группа радио-кнопок для обеспечения уникальности выделения в группе
     private ButtonGroup radioButtons = new ButtonGroup();
+    private  ButtonGroup radioMemoryButtons = new ButtonGroup();
+
     // Контейнер для отображения радио-кнопок
-    private Box hboxFormulaType = Box.createHorizontalBox(); //Контейнер, в который будут добавляться радио-кнопки, инициализируется в конструкторе, наполняется в методепомощнике
+    private Box hboxFormulaType = Box.createHorizontalBox();
+    private Box hboxMemoryType = Box.createHorizontalBox();
 
     private int formulaId = 1;
-    public Double calculate1(Double x, Double y)
+    private int memoryId = 1;
+    private Double mem1 = 0.0;
+    private Double mem2 = 0.0;
+    private Double mem3 = 0.0;
+
+    public Double calculate1(Double x, Double y, Double z)
     {
-        return x*x + y*y;
+        if (x == 0)
+        {
+            JOptionPane.showMessageDialog(MainFrame.this, "X не может равняться нулю", "" + "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            return 0.0;
+        }
+        if (x < 0)
+        {
+            JOptionPane.showMessageDialog(MainFrame.this, "X должен быть больше нуля!", "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+        }
+        if (y == -1)
+        {
+            JOptionPane.showMessageDialog(MainFrame.this, "Y не может равняться минус единице", "" + "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            return 0.0;
+        }
+        return Math.pow(Math.cos(Math.exp(x)) + Math.log(Math.pow(1+y, 2)) + Math.pow(Math.exp(Math.cos(x)) + Math.sin(Math.PI * z), 1/2) + Math.pow(1/x, 1/2) + Math.cos(y * y), Math.sin(z));
     }
-    public Double calculate2(Double x, Double y)
+    public Double calculate2(Double x, Double y, Double z)
     {
-        return x*x*x + 1/y;
+        if (z * x < 0)
+        {
+            JOptionPane.showMessageDialog(MainFrame.this, "Произведение Z * X должно быть больше нуля!", "" + "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            return 0.0;
+        }
+        if (y % 2 == 0 && x <= -1)
+        {
+            JOptionPane.showMessageDialog(MainFrame.this, "X должен быть больше минус единицы!", "" + "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            return 0.0;
+        }
+        return (1 + Math.pow(z * x, 1/2)) / Math.pow(1 + x * x * x, 1/y);
     }
 
     // Вспомогательный метод для добавления кнопок на панель
@@ -44,6 +80,26 @@ public class MainFrame extends JFrame
         });
         radioButtons.add(button);
         hboxFormulaType.add(button);
+    }
+    private void addMemoryRadioButton(String buttonName, final int memoryId)
+    {
+        JRadioButton button = new JRadioButton(buttonName);
+        button.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                MainFrame.this.memoryId = memoryId;
+                switch (memoryId)
+                {
+                    case(1): textMemoryField.setText(mem1.toString());
+                    case(2): textMemoryField.setText(mem2.toString());
+                    case(3): textMemoryField.setText(mem3.toString());
+                }
+            }
+        });
+        radioMemoryButtons.add(button);
+        hboxMemoryType.add(button);
     }
 
     public MainFrame()
@@ -65,7 +121,7 @@ public class MainFrame extends JFrame
         // Задать рамку для коробки с помощью класса BorderFactory
         hboxFormulaType.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
 
-        // Создать область с полями ввода для X и Y
+        // Создать область с полями ввода для X, Y, Z
         JLabel labelForX = new JLabel("X:");
         textFieldX = new JTextField("0", 10);
         // Установить макс размер = желаемому для предотвращения масштабирования
@@ -73,6 +129,9 @@ public class MainFrame extends JFrame
         JLabel labelForY = new JLabel("Y:");
         textFieldY = new JTextField("0", 10);
         textFieldY.setMaximumSize(textFieldY.getPreferredSize());
+        JLabel labelForZ = new JLabel("Z:");
+        textFieldZ = new JTextField("0", 10);
+        textFieldZ.setMaximumSize(textFieldZ.getPreferredSize());
 
         // Создать контейнер «коробка с горизонтальной укладкой»
         Box hboxVariables = Box.createHorizontalBox();
@@ -83,15 +142,20 @@ public class MainFrame extends JFrame
         // Добавить «распорку» C2-H2 шириной 10 пикселов для отступа между надписью и текстовым полем для ввода значения X
         hboxVariables.add(Box.createHorizontalStrut(10));
         hboxVariables.add(textFieldX);
-        hboxVariables.add(Box.createHorizontalStrut(100));
+        hboxVariables.add(Box.createHorizontalStrut(20));
         hboxVariables.add(labelForY);
         hboxVariables.add(Box.createHorizontalStrut(10));
         hboxVariables.add(textFieldY);
+        hboxVariables.add(Box.createHorizontalStrut(20));
+        hboxVariables.add(labelForZ);
+        hboxVariables.add(Box.createHorizontalStrut(10));
+        hboxVariables.add(textFieldZ);
         hboxVariables.add(Box.createHorizontalGlue());
+
 
         // Создать область для вывода результата
         JLabel labelForResult = new JLabel("Результат:");
-        textFieldResult = new JTextField("0", 10);
+        textFieldResult = new JTextField("0", 20);
         textFieldResult.setMaximumSize(textFieldResult.getPreferredSize());
         Box hboxResult = Box.createHorizontalBox();
         hboxResult.add(Box.createHorizontalGlue());
@@ -112,11 +176,12 @@ public class MainFrame extends JFrame
                 {
                     Double x = Double.parseDouble(textFieldX.getText());
                     Double y = Double.parseDouble(textFieldY.getText());
+                    Double z = Double.parseDouble(textFieldZ.getText());
                     Double result;
                     if (formulaId==1)
-                        result = calculate1(x, y);
+                        result = calculate1(x, y, z);
                     else
-                        result = calculate2(x, y);
+                        result = calculate2(x, y, z);
                     // Установить текст надписи равным результату
                     textFieldResult.setText(result.toString());
                 } catch (NumberFormatException ex)
@@ -134,6 +199,7 @@ public class MainFrame extends JFrame
             {
                 textFieldX.setText("0");
                 textFieldY.setText("0");
+                textFieldZ.setText("0");
                 textFieldResult.setText("0");
             }
         });
@@ -145,6 +211,70 @@ public class MainFrame extends JFrame
         hboxButtons.add(Box.createHorizontalGlue());
         hboxButtons.setBorder(BorderFactory.createLineBorder(Color.GREEN));
 
+        hboxMemoryType.add(Box.createHorizontalGlue());
+        addMemoryRadioButton("Переменная 1", 1);
+        addMemoryRadioButton("Переменная 2", 2);
+        addMemoryRadioButton("Переменная 3", 3);
+        radioMemoryButtons.setSelected(radioMemoryButtons.getElements().nextElement().getModel(), true);
+        hboxMemoryType.add(Box.createHorizontalGlue());
+        hboxMemoryType.setBorder(BorderFactory.createLineBorder(Color.YELLOW));
+
+        JButton buttonMC = new JButton("MC");
+        buttonMC.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ev)
+            {
+                switch (memoryId)
+                {
+                    case(1): mem1 = 0.0;
+                    case(2): mem2 = 0.0;
+                    case(3): mem3 = 0.0;
+                }
+                textMemoryField.setText("0.0");
+            }
+        });
+        JButton buttonM = new JButton("M+");
+        buttonM.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ev)
+            {
+                Double result = Double.parseDouble(textFieldResult.getText());
+                if (memoryId == 1)
+                {
+                    mem1 += result;
+                    textMemoryField.setText(mem1.toString());
+                }
+                if (memoryId == 2)
+                {
+                    mem2 += result;
+                    textMemoryField.setText(mem2.toString());
+                }
+                if (memoryId == 3)
+                {
+                    mem3 += result;
+                    textMemoryField.setText(mem3.toString());
+                }
+            }
+        });
+        Box hboxMemoryButtons = Box.createHorizontalBox();
+        hboxMemoryButtons.add(Box.createHorizontalGlue());
+        hboxMemoryButtons.add(buttonMC);
+        hboxMemoryButtons.add(Box.createHorizontalStrut(30));
+        hboxMemoryButtons.add(buttonM);
+        hboxMemoryButtons.add(Box.createHorizontalGlue());
+        hboxMemoryButtons.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        JLabel labelForMemory = new JLabel("Память:");
+        textMemoryField = new JTextField("0", 20);
+        textMemoryField.setMaximumSize(textMemoryField.getPreferredSize());
+        Box hboxMemoryResult = Box.createHorizontalBox();
+        hboxMemoryResult.add(Box.createHorizontalGlue());
+        hboxMemoryResult.add(labelForMemory);
+        hboxMemoryResult.add(Box.createHorizontalStrut(10));
+        hboxMemoryResult.add(textMemoryField);
+        hboxMemoryResult.add(Box.createHorizontalGlue());
+        hboxMemoryResult.setBorder(BorderFactory.createLineBorder(Color.RED));
+
         // Связать области воедино в компоновке BoxLayout
         Box contentBox = Box.createVerticalBox();
         contentBox.add(Box.createVerticalGlue());
@@ -152,6 +282,9 @@ public class MainFrame extends JFrame
         contentBox.add(hboxVariables);
         contentBox.add(hboxResult);
         contentBox.add(hboxButtons);
+        contentBox.add(hboxMemoryType);
+        contentBox.add(hboxMemoryButtons);
+        contentBox.add(hboxMemoryResult);
         contentBox.add(Box.createVerticalGlue());
         // Установить «вертикальную коробку» в область содержания главного окна
         getContentPane().add(contentBox, BorderLayout.CENTER);
