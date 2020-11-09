@@ -90,12 +90,12 @@ public class MainFrame extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 MainFrame.this.memoryId = memoryId;
-                switch (memoryId)
-                {
-                    case(1): textMemoryField.setText(mem1.toString());
-                    case(2): textMemoryField.setText(mem2.toString());
-                    case(3): textMemoryField.setText(mem3.toString());
-                }
+                if (memoryId == 1)
+                    textMemoryField.setText(MainFrame.this.mem1.toString());
+                if (memoryId == 2)
+                    textMemoryField.setText(MainFrame.this.mem2.toString());
+                if (memoryId == 3)
+                    textMemoryField.setText(MainFrame.this.mem3.toString());
             }
         });
         radioMemoryButtons.add(button);
@@ -136,21 +136,23 @@ public class MainFrame extends JFrame
         // Создать контейнер «коробка с горизонтальной укладкой»
         Box hboxVariables = Box.createHorizontalBox();
         hboxVariables.setBorder(BorderFactory.createLineBorder(Color.RED));
-        hboxVariables.add(Box.createHorizontalGlue());
+        //hboxVariables.add(Box.createHorizontalGlue());
         // Добавить подпись для переменной Х
         hboxVariables.add(labelForX);
         // Добавить «распорку» C2-H2 шириной 10 пикселов для отступа между надписью и текстовым полем для ввода значения X
         hboxVariables.add(Box.createHorizontalStrut(10));
         hboxVariables.add(textFieldX);
-        hboxVariables.add(Box.createHorizontalStrut(20));
+        hboxVariables.add(Box.createHorizontalGlue());
+        hboxVariables.add(Box.createHorizontalStrut(50));
         hboxVariables.add(labelForY);
         hboxVariables.add(Box.createHorizontalStrut(10));
         hboxVariables.add(textFieldY);
-        hboxVariables.add(Box.createHorizontalStrut(20));
+        hboxVariables.add(Box.createHorizontalGlue());
+        hboxVariables.add(Box.createHorizontalStrut(50));
         hboxVariables.add(labelForZ);
         hboxVariables.add(Box.createHorizontalStrut(10));
         hboxVariables.add(textFieldZ);
-        hboxVariables.add(Box.createHorizontalGlue());
+        //hboxVariables.add(Box.createHorizontalGlue());
 
 
         // Создать область для вывода результата
